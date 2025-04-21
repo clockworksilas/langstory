@@ -42,25 +42,27 @@ current_chunk = CHUNKS[progress]
 st.progress(progress / total_chunks)
 st.subheader(f"Chunk {progress + 1} of {total_chunks}")
 
-# --- Timed reveal ---
+# ------- Initialize session state -------
 if "start_time" not in st.session_state:
     st.session_state.start_time = time.time()
-    st.session_state.chunk_revealed = True
-    st.experimental_rerun()
 
-# Check if time is up
+if "chunk_revealed" not in st.session_state:
+    st.session_state.chunk_revealed = True
+
+# ------- Timer and logic -------
 elapsed = time.time() - st.session_state.start_time
 
 if st.session_state.chunk_revealed and elapsed < SHOW_TIME:
     st.info("⏱ Memorize this quickly!")
     st.code(current_chunk)
     st.caption(f"Disappearing in {int(SHOW_TIME - elapsed)} sec...")
-    st.experimental_rerun()  # force re-run to update the time
+    st.experimental_rerun()
+
 elif st.session_state.chunk_revealed and elapsed >= SHOW_TIME:
     st.session_state.chunk_revealed = False
     st.experimental_rerun()
 
-# --- After hiding the chunk ---
+# ------- Typing from memory -------
 user_input = st.text_area("✍️ Type what you remember:")
 
 if st.button("Check"):
